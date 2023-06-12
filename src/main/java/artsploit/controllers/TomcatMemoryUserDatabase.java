@@ -45,6 +45,7 @@ public class TomcatMemoryUserDatabase implements LdapController {
         ResourceRef ref = new ResourceRef("org.apache.catalina.UserDatabase", null, "", "",
                 true, "org.apache.catalina.users.MemoryUserDatabaseFactory", null);
         ref.add(new StringRefAddr("pathname", Config.command));
+        ref.add(new StringRefAddr("readonly", "false"));
 
         e.addAttribute("javaSerializedData", serialize(ref));
 
