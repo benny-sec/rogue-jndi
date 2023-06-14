@@ -28,11 +28,10 @@ import static artsploit.Utilities.serialize;
  * @author artsploit
  */
 
-@SuppressWarnings("CommentedOutCode")
 @LdapMapping(uri = {"/o=dbcp2h2"})
 public class Dbcp2H2 implements LdapController {
 
-
+    @SuppressWarnings({"DuplicatedCode", "CommentedOutCode"})
     public void sendResult(InMemoryInterceptedSearchResult result, String base) throws Exception {
 
         System.out.println("Sending LDAP ResourceRef result for " + base + " with dbcp2-h2-sql payload");

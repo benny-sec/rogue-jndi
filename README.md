@@ -60,10 +60,12 @@ Mapping ldap://192.168.1.10:1389/o=tomcat to artsploit.controllers.Tomcat
 Mapping ldap://192.168.1.10:1389/o=groovy to artsploit.controllers.Groovy
 Mapping ldap://192.168.1.10:1389/o=websphere1 to artsploit.controllers.WebSphere1
 Mapping ldap://192.168.1.10:1389/o=websphere1,wsdl=* to artsploit.controllers.WebSphere1
-Mapping ldap://192.168.1.10:1389/o=dbcp2h2 to artsploit.controllers.Dbcp2H2
-Mapping ldap://192.168.1.10:1389/o=tomcat-user-database to artsploit.controllers.TomcatMemoryUserDatabase
 Mapping ldap://192.168.1.10:1389/o=websphere2 to artsploit.controllers.WebSphere2
 Mapping ldap://192.168.1.10:1389/o=websphere2,jar=* to artsploit.controllers.WebSphere2
+Mapping ldap://192.168.1.10:1389/o=dbcp2h2 to artsploit.controllers.Dbcp2H2
+Mapping ldap://192.168.1.10:1389/o=tomcat-user-database to artsploit.controllers.TomcatMemoryUserDatabase
+Mapping ldap://192.168.1.10:1389/o=hikaricph2 to artsploit.controllers.HikariCPH2
+Mapping ldap://192.168.1.10:1389/o=druidh2 to artsploit.controllers.DruidH2
 ```
 
 ### Building
