@@ -13,20 +13,24 @@ import javax.naming.StringRefAddr;
 import static artsploit.Utilities.serialize;
 
 /**
- * Yields:
- *  RCE via arbitrary bean creation in {@link org.apache.naming.factory.BeanFactory}
- *  When bean is created on the server side, we can control its class name and setter methods,
- *   so we can leverage {@link javax.el.ELProcessor#eval} method to execute arbitrary Java code via EL evaluation
+ * Yields: Sets system properties on the JVM
+ * GenericNamingResourcesFactory provides an implementation of the ObjectFactory that can be used to set a property by
+ * invoking its setter. The SystemConfiguration class of the Apache CommonsConfiguration2 provides setSystemProperties
+ * method that can be used to set the system properties. By making use of these two classes we can set system properties
+ * in the JVM by pointing to a URL with properties stored in a text file as key-value pairs.
  *
- * @see https://www.veracode.com/blog/research/exploiting-jndi-injections-java for details
+ * @see https://github.com/iSafeBlue/presentation-slides/blob/main/BCS2022-%E6%8E%A2%E7%B4%A2JNDI%E6%94%BB%E5%87%BB.pdf
  *
- * Requires:
- *  Tomcat 8+ or SpringBoot 1.2.x+ in classpath
- *  - tomcat-embed-core.jar
- *  - tomcat-embed-el.jar
+ * Command - URL to the HTTP server that contains the properties file. (text file with property=value pair)
  *
- * @author artsploit
+ * Requires: Commons Configuration2
+ *
+ *  Verified on:
+ *  - org.apache.commons:commons-configuration2:2.9.0
+ *
+ * @author snowyowl
  */
+
 @SuppressWarnings("DuplicatedCode")
 @LdapMapping(uri = { "/o=tomcat-set-system-properties" })
 public class TomcatSystemProperties implements LdapController {

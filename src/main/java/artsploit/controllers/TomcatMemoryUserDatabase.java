@@ -14,7 +14,7 @@ import static artsploit.Utilities.serialize;
 
 /**
  * Yields:
- * XXE/RCE(on windows only) via  Tomcat MemoryUserDatabaseFactory
+ * XXE/RCE(on Windows only) via  Tomcat MemoryUserDatabaseFactory
  *
  * @see https://tttang.com/archive/1405/#toc_0x02-xxe-rce for details
  *
@@ -25,7 +25,7 @@ import static artsploit.Utilities.serialize;
  *  - tomcat-embed-core.jar
  *  - tomcat-embed-el.jar
  *
- * @author artsploit
+ * @author snowyowl
  */
 
 @LdapMapping(uri = { "/o=tomcat-user-database" })
