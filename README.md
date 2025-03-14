@@ -70,6 +70,7 @@ Mapping ldap://192.168.1.10:1389/o=dbcp2-h2 to artsploit.controllers.Dbcp2H2
 Mapping ldap://192.168.1.10:1389/o=druid-h2 to artsploit.controllers.DruidH2
 Mapping ldap://192.168.1.10:1389/o=dbcp2-postgresql to artsploit.controllers.Dbcp2Postgresql
 Mapping ldap://192.168.1.10:1389/o=hikaricp-h2 to artsploit.controllers.HikariCPH2
+Mapping ldap://192.168.1.10:1389/o=hikaricp-h2-local-factory to artsploit.controllers.HikariCPH2LocalFactory
 ```
 
 ### Building
