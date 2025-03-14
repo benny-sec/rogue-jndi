@@ -66,6 +66,7 @@ Mapping ldap://192.168.1.10:1389/o=dbcp2h2 to artsploit.controllers.Dbcp2H2
 Mapping ldap://192.168.1.10:1389/o=tomcat-user-database to artsploit.controllers.TomcatMemoryUserDatabase
 Mapping ldap://192.168.1.10:1389/o=hikaricph2 to artsploit.controllers.HikariCPH2
 Mapping ldap://192.168.1.10:1389/o=druidh2 to artsploit.controllers.DruidH2
+Mapping ldap://192.168.1.10:1389/o=hikaricp-h2-local-factory to artsploit.controllers.HikariCPH2LocalFactory
 ```
 
 ### Building
