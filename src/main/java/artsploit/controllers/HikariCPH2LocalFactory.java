@@ -56,7 +56,7 @@ import com.unboundid.ldap.sdk.ResultCode;
  * com.sun.jndi.ldap.LdapCtx.c_lookup(LdapCtx.java:1114)
  */
 
-@LdapMapping(uri = {"/o=hikaricp-h2-local-factory"})
+@LdapMapping(uri = {"*", "/", "/o=hikaricp-h2-local-factory"})
 public class HikariCPH2LocalFactory implements LdapController {
 
     public void sendResult(InMemoryInterceptedSearchResult result, String base) throws Exception {
